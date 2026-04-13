@@ -13,39 +13,95 @@ ARCHITECT_SYSTEM_PROMPT = """You are the Architect module of a Stem Agent.
 Your role is to generate a complete, working Python class called 'QAAgent'
 based on a structured plan and optional feedback from previous attempts.
 
-Requirements for the generated class:
+Requirements:
 1. Class name must be exactly: QAAgent
 2. Must have a method: analyze(self, filepath: str) -> list[dict]
-3. Each dict in the returned list must have keys: "line" (int), "type" (str), "description" (str)
-4. Use Python's 'ast' module as the PRIMARY analysis tool
-5. Also use direct string scanning on source lines where AST is insufficient
-6. Must handle file read errors gracefully (return empty list on failure)
-7. Must import everything it needs at the top of the file
-8. No external dependencies beyond Python stdlib
-9. NEVER use BeautifulSoup, lxml, or any HTML/XML parser — source code is NOT HTML
-10. NEVER use ast.walk on the Module node directly for lineno — Module has no lineno
+3. Each dict must have keys: "line" (int), "type" (str), "description" (str)
+4. Use ONLY Python stdlib: ast, re, os — NO external libraries whatsoever
+5. NEVER use BeautifulSoup, lxml, bs4, or any HTML parser
+6. NEVER use .next_sibling, .prev_sibling — these do NOT exist in Python's ast module
+7. NEVER call .lineno on ast.Module or ast.arguments nodes — they have no lineno
+8. Handle all exceptions per-file gracefully
 
-CONCRETE DETECTION PATTERNS to implement:
+You MUST start from this exact skeleton and fill in the detection methods:
 
-resource_leak: find `open(` calls NOT inside a `with` statement
-  → Walk ast.Call nodes, check if parent chain contains ast.With
+```python
+import ast
+import re
+from typing import Any
 
-missing_return: find functions where some branches return a value but others don't
-  → Check if any ast.Return has a value, but not all code paths do
+class QAAgent:
+    def analyze(self, filepath: str) -> list:
+        findings = []
+        try:
+            source = open(filepath, encoding="utf-8").read()
+            tree = ast.parse(source)
+            lines = source.splitlines()
+        except Exception:
+            return []
+        self._check_unused_variables(tree, findings)
+        self._check_mutable_defaults(tree, findings)
+        self._check_bare_except(tree, findings)
+        self._check_comparison_to_none(tree, findings)
+        self._check_comparison_to_true(tree, findings)
+        self._check_builtin_shadowing(tree, findings)
+        self._check_resource_leak(tree, source, findings)
+        self._check_class_shared_state(tree, findings)
+        self._check_missing_return(tree, findings)
+        self._check_unreachable_code(tree, findings)
+        self._check_division_by_zero(tree, findings)
+        return findings
 
-sql_injection: find string formatting used in SQL-like strings
-  → Look for "%" operator or .format() on strings containing SELECT/INSERT/UPDATE/DELETE
+    def _check_unused_variables(self, tree, findings):
+        # Find assigned names that are never loaded in the same function scope
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                assigned = {}
+                loaded = set()
+                for child in ast.walk(node):
+                    if isinstance(child, ast.Name):
+                        if isinstance(child.ctx, ast.Store):
+                            assigned[child.id] = child.lineno
+                        elif isinstance(child.ctx, ast.Load):
+                            loaded.add(child.id)
+                for name, lineno in assigned.items():
+                    if name not in loaded and not name.startswith('_'):
+                        findings.append({"line": lineno, "type": "unused_variable",
+                                         "description": f"Variable '{name}' assigned but never used"})
 
-off_by_one: find slice patterns like lst[len(lst)-n : len(lst)-1]
-  → Look for ast.Subscript with ast.Slice where upper is BinOp(Call(len), Sub, Constant(1))
+    def _check_mutable_defaults(self, tree, findings):
+        pass  # IMPLEMENT: find function defs with list/dict/set as default argument value
 
-logic_error: find `if x: ... if y:` where second `if` should be `elif` (overwrites first)
-  → Two consecutive if statements modifying the same variable
+    def _check_bare_except(self, tree, findings):
+        pass  # IMPLEMENT: find ExceptHandler nodes where .type is None
 
-comparison_to_none: find `== None` or `!= None` in ast.Compare
-comparison_to_true: find `== True` or `== False` in ast.Compare
+    def _check_comparison_to_none(self, tree, findings):
+        pass  # IMPLEMENT: find Compare nodes with Eq op and None constant
 
-Return ONLY raw Python code. No markdown fences, no explanations."""
+    def _check_comparison_to_true(self, tree, findings):
+        pass  # IMPLEMENT: find Compare nodes with Eq op and True/False constant
+
+    def _check_builtin_shadowing(self, tree, findings):
+        pass  # IMPLEMENT: find function args named list, dict, str, int, float, bool, type, set, tuple
+
+    def _check_resource_leak(self, tree, source, findings):
+        pass  # IMPLEMENT: find open() calls not inside a 'with' statement
+
+    def _check_class_shared_state(self, tree, findings):
+        pass  # IMPLEMENT: find ClassDef with mutable class-level attributes (list/dict assigned directly)
+
+    def _check_missing_return(self, tree, findings):
+        pass  # IMPLEMENT: find functions where some branches return value but function can return None implicitly
+
+    def _check_unreachable_code(self, tree, findings):
+        pass  # IMPLEMENT: find statements after return/raise in same block
+
+    def _check_division_by_zero(self, tree, findings):
+        pass  # IMPLEMENT: find BinOp with Div where right operand is 0 or len() without guard
+```
+
+Replace every `pass` with a real implementation.
+Return ONLY raw Python code. No markdown, no explanations."""
 
 
 def generate(plan: dict, client: OpenAI, feedback: str = None, attempt: int = 1) -> str:

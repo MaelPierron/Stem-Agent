@@ -7,7 +7,6 @@ Produces a structured PLAN that the Architect will use to generate code.
 
 import os
 import json
-import httpx
 from openai import OpenAI
 
 

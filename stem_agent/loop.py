@@ -6,7 +6,6 @@ Orchestrates: Explore → Architect → Evaluate → (iterate if needed) → Don
 
 import os
 import json
-import httpx
 from pathlib import Path
 from openai import OpenAI
 
@@ -34,10 +33,7 @@ def run_stem_agent():
     if not api_key:
         raise ValueError("OPENAI_API_KEY not set. Please add it to your .env file.")
 
-    client = OpenAI(
-        api_key=api_key,
-        http_client=httpx.Client(timeout=120.0)
-    )
+    client = OpenAI(api_key=api_key)
     os.makedirs(SPECIALIZED_DIR, exist_ok=True)
 
     print("=" * 60)
