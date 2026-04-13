@@ -1,0 +1,55 @@
+{
+  "buggy_01.py": [
+    {"line": 3, "type": "unused_variable", "description": "unused_var is assigned but never used"},
+    {"line": 4, "type": "unused_variable", "description": "tax is assigned but never used"},
+    {"line": 7, "type": "unreachable_code", "description": "print after return is unreachable"},
+    {"line": 10, "type": "unused_variable", "description": "debug_flag is assigned but never used"},
+    {"line": 11, "type": "unused_variable", "description": "temp is assigned but never used"}
+  ],
+  "buggy_02.py": [
+    {"line": 2, "type": "mutable_default_argument", "description": "mutable default argument lst=[]"},
+    {"line": 8, "type": "bare_except", "description": "bare except clause catches all exceptions silently"},
+    {"line": 12, "type": "mutable_default_argument", "description": "mutable default argument results=[]"}
+  ],
+  "buggy_03.py": [
+    {"line": 3, "type": "division_by_zero", "description": "len(numbers) can be 0 if list is empty"},
+    {"line": 7, "type": "type_error", "description": "concatenation fails if first or last is None"},
+    {"line": 11, "type": "division_by_zero", "description": "b can be zero, no guard"},
+    {"line": 14, "type": "class_shared_state", "description": "class-level count shared across instances"}
+  ],
+  "buggy_04.py": [
+    {"line": 3, "type": "comparison_to_none", "description": "use 'is None' instead of '== None'"},
+    {"line": 5, "type": "comparison_to_true", "description": "use 'is True' or truthiness instead of '== True'"},
+    {"line": 9, "type": "builtin_shadowing", "description": "parameter 'list' shadows built-in"},
+    {"line": 9, "type": "builtin_shadowing", "description": "parameter 'dict' shadows built-in"},
+    {"line": 9, "type": "builtin_shadowing", "description": "parameter 'str' shadows built-in"}
+  ],
+  "buggy_05.py": [
+    {"line": 3, "type": "logic_error", "description": "operator precedence issue, missing parentheses"},
+    {"line": 8, "type": "off_by_one", "description": "slice misses last element, should be lst[-n:]"},
+    {"line": 13, "type": "logic_error", "description": "second if should be elif to avoid overwriting min clamp"},
+    {"line": 20, "type": "performance", "description": "seen should be a set for O(1) lookup"}
+  ],
+  "buggy_06.py": [
+    {"line": 3, "type": "resource_leak", "description": "file opened but never closed, no context manager"},
+    {"line": 8, "type": "resource_leak", "description": "file opened but never closed"},
+    {"line": 13, "type": "resource_leak", "description": "file opened but never closed, no context manager"}
+  ],
+  "buggy_07.py": [
+    {"line": 3, "type": "sql_injection", "description": "string interpolation in SQL query is unsafe"},
+    {"line": 6, "type": "type_error", "description": "age must be str for concatenation, will fail if int"},
+    {"line": 13, "type": "style", "description": "verbose string concatenation, prefer f-string"}
+  ],
+  "buggy_08.py": [
+    {"line": 1, "type": "missing_return", "description": "get_discount returns None implicitly when user_type is unrecognized"},
+    {"line": 9, "type": "missing_return", "description": "find_user has no explicit return None"},
+    {"line": 14, "type": "inconsistent_return", "description": "validate returns None for non-int non-str types"}
+  ],
+  "buggy_09.py": [
+    {"line": 3, "type": "class_shared_state", "description": "balance is class-level, shared across instances"},
+    {"line": 4, "type": "class_shared_state", "description": "transactions list is shared across instances"},
+    {"line": 10, "type": "missing_guard", "description": "withdraw has no check for negative balance"},
+    {"line": 21, "type": "missing_type_check", "description": "__eq__ crashes if other is None or not a Point"}
+  ],
+  "clean_10.py": []
+}

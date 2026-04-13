@@ -1,0 +1,15 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+specialized/qa_agent*.py
+specialized/plan.json
+specialized/result_*.json
+specialized/evolution_history.json
+specialized/final_report.json
+!specialized/.gitkeep
